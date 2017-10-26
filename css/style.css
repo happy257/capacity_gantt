@@ -1,10 +1,8 @@
 body {
 	font-family: Tahoma,Arial,Verdana;
-	font-size: 12px;
+	font-size: 16px;
 	color: black;
 }
-
-a:link {color: #84c4e2;}
-a:visited {color:#84c4e2;}
-a:hover {color: #cd82ad;}
-a:active {color: #84c4e2;}
+h3.devName{
+    margin:0px;
+}
