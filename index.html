@@ -14,18 +14,21 @@
     </head>
 
     <body>
-        <div id="chartdiv" style="width:100%; height: 900px"></div>
+		<div id="menu" class="hide">
+			<code><a href="./viewByDev.html">View by developer</a></code> | 
+			<code><a href="./viewAll.html">View All</a></code>
+		</div>	
     </body>
     <script>
         $(document).ready(function(){
             $.get("http://localhost:3000/api/getAllDevs", function( empLookup ) {
                 sessionStorage.empLookup = JSON.stringify(empLookup);
-                window.location.href="./viewByDev.html";
+				$("#menu").removeClass("hide")
+                //window.location.href="./viewByDev.html";
             }).fail(function(XHR,errState,errMsg) {
                 console.error("Could not connect")
                 console.error(XHR)
             });
         });
     </script>
-    
 </html>
