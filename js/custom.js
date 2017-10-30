@@ -1,15 +1,23 @@
 $(document).ready(function(){
+var empLookup = JSON.parse(sessionStorage.empLookup);
+for(emp in empLookup){
+	$('#devList').append('<option value="'+emp.replace('A',"")+'">'+empLookup[emp]+'</option>')
+}
 
+$("#getByDev").click(function(){
+	ganttForDev($("#devList").val(),"div_"+$("#devList").val())
+})
 ganttForDev=function(devID,domID){
         //Get emp data from cached web service call result in session
-        var empLookup = JSON.parse(sessionStorage.empLookup);
+        
         //Find target div in DOM, if not present create one
         if(domID==undefined || $("#"+domID).length==0){
-            if(domID==undefined)
-                domID = "div_"+Date.now();
-            $("body").append("<div style='width:100%;' id='"+domID+"'></div>")
+            if(domID==undefined){
+			    domID = "div_"+Date.now();console.log("No target Div")
+			}
+            $("#ganttArea").append("<div class='card ganttWrap' id='"+domID+"'><div class='ganttHead'><span class='devName'></span><span class='headCtrl'><a href='#!' class='min-ctrl'></a><a href='#!' class='del-ctrl'></a></span></div><div class='chartArea' id='"+domID+"_chart'></div></div>")
         }
-            
+        $("#"+domID+">div.ganttHead>span.devName").html(empLookup['A'+devID]+' / '+devID)
         $.get("http://localhost:3000/api/dataByDev/"+devID, function( data ) {
 			  data.forEach(function(e,i){
 				  var id=e.developer.split('|')[0];
@@ -28,9 +36,8 @@ ganttForDev=function(devID,domID){
                         schEle.color="#ffb74d"
 				  })
 			  })    
-		      $("#"+domID).css("height",data.length*25+40)
-              $("#"+domID).before("<h3 class='devName'>"+empLookup['A'+devID]+"</h3>")
-		      var chart = AmCharts.makeChart(domID, {
+		      $("#"+domID+"_chart").css("height",data.length*25+70)
+		      var chart = AmCharts.makeChart(domID+'_chart', {
 				"type": "gantt",
 				"period": "DD",
 				"valueAxis": {
@@ -69,12 +76,26 @@ ganttForDev=function(devID,domID){
 				if(XHR.status==404){
 					$("#"+domID).html("<h2 class='error'>Web service not found, check URL</h2>")
 				}else if(XHR.status==400){
-					$("#"+domID).html("<h2 class='error'>"+XHR.responseText+"</h2>")
+					$("#"+domID+">.chartArea").html("<h2 class='error'>"+XHR.responseText+"</h2>")
 				}
 			}
 		});
 }
-
-ganttForDev("0724444","targetDivID")
-
-})
+	$(document).on('click',".min-ctrl",function(){
+		$(this).parents(".card").children(".chartArea").toggleClass('hide')
+	})
+	$(document).on('click','.del-ctrl',function(){
+		$(this).parents(".card").remove()
+	})
+	$("#ganttForAll").click(function(){
+		$("#devList option").each(function(i,e){
+			$("#devList").val($(e).attr("value"));
+			$("#getByDev").click();
+		})
+		$("#clearAll").show();
+	})
+	$("#clearAll").click(function(){
+		$("#ganttArea").html("");
+		$(this).hide();
+	})
+});
